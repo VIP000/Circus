@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,700" rel="stylesheet">
+<link rel="stylesheet" href="/vendor/makerstrap.min.css">
+<link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.css">
+<script src="/vendor/webxray/prefixfree.min.js"></script>
+<style>
+html, body, .browser {
+  height: 100%;
+
+}
+
+.urlbar form {
+  display: flex;
+  display: -webkit-flex;
+  align-items: center;
+  -webkit-align-items: center;
+  background: #e3eaee; /* makerstrap @lightgrey */
+  padding: 10px 0 10px 10px;
+}
+
+.urlbar form > * {
+  margin-right: 10px;
+}
+
+.urlbar form > input[name=url] {
+  flex-grow: 1;
+  -webkit-flex-grow: 1;
+}
+
+.browser {
+  display: flex;
+  display: -webkit-flex;
+  flex-direction: column;
+  -webkit-flex-direction: column;
+}
+
+.browser > .content {
+  flex-grow: 1;
+  -webkit-flex-grow: 1;
+  position: relative;
+}
+
+.browser > .content > iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+</style>
+<title>Circus</title>
+<div id="myCanvas" class="browser">
+  <div class="urlbar">
+    <form action="/proxy">
+      <input spellcheck="false" type="text" name="url" class="form-control" placeholder="http://">
+      <button type="submit" class="btn btn-primary">
+        Go <i class="fa fa-chevron-right"></i>
+      </button>
+
+      <!-- We're hiding the togetherJS button for now, it's not
+           particularly useful yet. -->
+      <button id="togetherjs" class="btn btn-default" title="Collaborate" style="display: none">
+        <i class="fa fa-user-plus"></i>
+        <span class="hidden-xs">Collaborate</span>
+      </button>
+
+      <button id="webxray" class="btn btn-default" title="Goggles">
+        <i class="fa fa-code-fork"></i>
+        <span class="hidden-xs">Goggles</span>
+      </button>
+      <a id="spider" class="btn btn-default" href="/spider" target="_blank" title="Spider">
+        <i class="fa fa-bug"></i>
+        <span class="hidden-xs">Spider</span>
+      </a>
+      <a class="btn btn-default" href="/about/" target="_blank" title="About">
+        <i class="fa fa-question"></i>
+      </a>
+    </form>
+  </div>
+  <div class="content"></div>
+</div>
+<script src="/vendor/webxray/index.js"></script>
+<script src="/js/bundle.js"></script>
+<script>
+var querystring = require('querystring');
+var urls = require('./lib/urls');
+var urlbarForm = document.querySelector('.urlbar form');
+var spiderLink = document.getElementById('spider');
+var content = document.querySelector('.content');
+
+function gotoURL(url) {
+  var query = querystring.parse(window.location.hash.slice(1));
+
+  if (query.url == url) return;
+
+  query.url = encodeURIComponent(url);
+  window.location.hash = '#' + querystring.stringify(query);
+}
+
+function getCurrentURL() {
+  var query = querystring.parse(window.location.hash.slice(1));
+  return query.url ? decodeURIComponent(query.url) : '';
+}
+
+function getContentIframe() {
+  return content.childNodes[0] || null;
+}
+
+function removeLinkTargets(parentNode) {
+  var elements = parentNode.querySelectorAll('a[target]');
+  for (var i = 0; i < elements.length; i++)
+    elements[i].removeAttribute('target');
+}
+
+function onHashChange() {
+  var url = getCurrentURL();
+  spiderLink.setAttribute('href', '/spider?url=' + url);
+  if (urlbarForm.url.value != url)
+    urlbarForm.url.value = url;
+  var iframe = getContentIframe();
+  var proxiedURL = urls.rewriteURL(url);
+  var currIframeURL;
+  var updateLocation = function() {
+    var cWin = iframe.contentWindow;
+    var currentURL = urls.extractURL(cWin.location.href);
+    var expectedURL = getCurrentURL();
+
+    if (currentURL && expectedURL && currentURL != expectedURL)
+      gotoURL(currentURL);
+  };
+
+  document.title = url || 'Baseless Browser';
+
+  if (url) {
+    if (iframe) {
+      currIframeURL = urls.extractURL(iframe.contentWindow.location.href);
+      if (currIframeURL == url)
+        return;
+      content.removeChild(iframe);
+    }
+  } else {
+    if (iframe) content.removeChild(iframe);
+    return;
+  }
+
+  iframe = document.createElement('iframe');
+  iframe.setAttribute('src', proxiedURL);
+  iframe.addEventListener('load', function() {
+    iframe.contentWindow.addEventListener('hashchange', updateLocation);
+    updateLocation();
+    removeLinkTargets(iframe.contentDocument);
+  });
+  content.appendChild(iframe);
+}
+
+urlbarForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  var url = urlbarForm.url.value;
+  if (url && !/^https?:\/\//i.test(url))
+    url = urlbarForm.url.value = 'http://' + url;
+  gotoURL(url);
+});
+
+window.addEventListener('load', function() {
+  window.addEventListener('hashchange', onHashChange);
+  onHashChange();
+});
+
+// TogetherJS integration
+
+document.getElementById("togetherjs").addEventListener('click', function(e) {
+  if (typeof(TogetherJS) == 'undefined')
+    return alert("TogetherJS is not available, please try later.");
+  TogetherJS(this);
+});
+
+window.addEventListener('hashchange', function() {
+  if (typeof(TogetherJS) == 'undefined' || !TogetherJS.running)
+    return;
+
+  TogetherJS.send({type: 'urlChange', url: getCurrentURL()});
+});
+
+TogetherJSConfig_hub_on = {
+  'urlChange': function(msg) {
+    gotoURL(msg.url);
+  },
+  'togetherjs.hello': function(msg) {
+    if (!msg.sameUrl) return;
+    TogetherJS.send({type: 'urlChange', url: getCurrentURL()});
+  }
+};
+
+// X-Ray Goggles integration
+
+document.getElementById("webxray").addEventListener('click', function(e) {
+  var iframe = getContentIframe();
+  var cWin = iframe && iframe.contentWindow;
+  var script;
+
+  if (!cWin) return;
+
+  script = cWin.document.createElement('script');
+  script.setAttribute('src', '/vendor/webxray/webxray.js');
+  script.setAttribute('class', 'webxray');
+  cWin.webxrayWhenGogglesLoad = function(ui) {
+    ui.jQuery.webxraySettings.hackpubURL = window.location.protocol +
+      '//' + window.location.host + '/webxray/';
+  };
+  cWin.document.body.appendChild(script);
+  iframe.focus();
+});
+</script>
+<script src="//togetherjs.com/togetherjs-min.js" async></script>
