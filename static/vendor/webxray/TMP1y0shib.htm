@@ -2,8 +2,111 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Publish Your Remix</title>
-<link rel="stylesheet" href="dialog-common/stylesheets/base.css">
+<link rel="stylesheet" title="对于&quot;在浏览器中预览&quot;为禁用: dialog-common/stylesheets/base.css">
+<style type="text/css">
+
+/* Fonts */
+
+@font-face {
+    font-family: 'TrashHandRegular';
+    src: url('dialog-common/fonts/TrashHand-webfont.eot');
+    src: url('dialog-common/fonts/TrashHand-webfont.eot?#iefix') format('embedded-opentype'),
+         url('dialog-common/fonts/TrashHand-webfont.woff') format('woff'),
+         url('dialog-common/fonts/TrashHand-webfont.ttf') format('truetype'),
+         url('dialog-common/fonts/TrashHand-webfont.svg#TrashHandRegular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Global rules */
+
+html, body {
+  font-family: Georgia, serif;
+  margin: 0px;
+  color: #41415b;
+  height: 100%;
+  background-attachment: fixed;
+  background-image: -webkit-gradient(linear, left top, left 100px, from(#ffebb2), to(white));
+  background-image: -webkit-linear-gradient(top, #ffebb2, white 100px);
+  background-image: -moz-linear-gradient(top, #ffebb2, white 100px);  
+  background-image: -o-linear-gradient(top, #ffebb2, white 100px);  
+  /* If the browser doesn't support gradients, just use a white background. */
+  background-color: white;
+}
+
+h1.title {
+  font-family: 'TrashHandRegular';
+  font-weight: normal;
+  font-size: 48px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+h1 .subtitle {
+  font-family: Georgia, serif;
+  font-size: 24px;
+}
+
+.container {
+  padding: 20px;
+}
+
+a:link,
+a:visited,
+a:focus,
+a:hover,
+a:active {
+  color: #153959;
+  text-decoration: none;
+}
+
+a:focus,
+a:hover,
+a:active {
+  text-decoration: underline;
+}
+
+div.close-button, div.ok-button {
+  display: inline-block;
+  position: fixed;
+  z-index: 100;
+  cursor: pointer;
+}
+
+div.close-button {
+  top: 10px;
+  right: 10px;
+  overflow: hidden;
+  color: transparent;
+  width: 46px;
+  height: 43px;
+  background-image: url(dialog-common/images/close-button.png);
+}
+
+div.ok-button {
+  margin: 0.25em;
+  padding: 10px;
+  border-radius: 3px;
+  background-color: #8ab300;
+  color: white;
+  bottom: 10px;
+  right: 10px;
+  font-style: italic;
+}
+
+div.ok-button:after {
+  content: ' »';
+}
+
+div.ok-button:hover {
+  background: black;
+  color: white;
+}
+
+
+</style>
 <style>
+
 textarea {
   font-family: Monaco, "Lucida Console", monospace;
   font-size: 9pt;
@@ -60,6 +163,7 @@ body {
 	background-color: Black;
 	background-repeat: repeat;
 }
+
 </style>
 <div class="container">
 <div id="buttons">

@@ -1,20 +1,20 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <link href="//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,700" rel="stylesheet">
 <link rel="stylesheet" href="/vendor/makerstrap.min.css">
 <link rel="stylesheet" href="/vendor/font-awesome/css/font-awesome.css">
 <link rel="stylesheet" href="/vendor/epoch.min.css">
 <title>Diagnostics</title>
 <style type="text/css">
-body,td,th {
-	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
-	font-size: 24px;
-	color: #CCC;
+body { 
+  background:#000000 url('../images/shendeng.gif')no-repeat center top;
+  color: #41415b;
 }
 </style>
-<body background="spider.jpg"><div class="container">
-  <img src="X_logo.png" width="200" height="70" />
-  <h1>Diagnostics</h1>
+<title>ALADDIN DIAGNOSTICS</title>
+<div class="container">
+  <img src="../images/gao_logo_bai.png" href="#">
   <div id="chart" class="epoch category10" style="height: 200px;"></div>
   <div class="well">
     Average megabits per second: <span id="speed">0</span>
@@ -24,8 +24,8 @@ body,td,th {
   <p>Don't leave this page open for too long, as it's basically
     saturating your network.</p>
   <p>If you're having connectivity problems, consider using
-    <a href="/d/traceroute/">traceroute</a> and/or
-    <a href="/d/ping/">ping</a>.</p>
+    <a href="traceroute/">traceroute</a> and/or
+    <a href="ping/">ping</a>.</p>
 </div>
 <script src="/vendor/jquery.js"></script>
 <script src="/vendor/d3.v3.js"></script>
